@@ -168,5 +168,23 @@ public class Enchere {
             connect.close();
         }
         return liste;
-    }  
+    }
+    
+    public Timestamp getFinEnchere(){
+        Timestamp dt = this.getDateDebut();
+        String str = dt.toString().replace(" ", "T");
+        LocalDateTime date = LocalDateTime.parse(str);
+        LocalDateTime newDate = date.plusHours((long) this.getDuree());
+        Timestamp fin = Timestamp.valueOf(newDate.toString().replace("T", " "));
+        return fin;
+    }
+    
+    public boolean estTerminee(){
+        Timestamp dt = Timestamp.valueOf(LocalDateTime.now());
+        Timestamp tm = this.getFinEnchere();
+        if(tm.before(dt) || tm.equals(dt)){
+            return true;
+        }
+        return false;
+    }
 }
