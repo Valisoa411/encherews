@@ -17,6 +17,8 @@ import com.example.restservice.token.Token;
 import com.google.gson.Gson;
 
 import io.jsonwebtoken.ExpiredJwtException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 
 @RestController
 @CrossOrigin
@@ -30,6 +32,8 @@ public class EnchereController {
         Response res = new Response();
         Parametre p = new Parametre("DureeEnchere");
         if(duree <= p.getParametreValue().getValeur()){
+            Timestamp dt = Timestamp.valueOf(LocalDateTime.now());
+            enc.setDateDebut(dt);
             enc.setNomProduit(nomProduit);
             enc.setDescription(description);
             enc.setPrixEnchere(prixEnchere);
@@ -44,14 +48,6 @@ public class EnchereController {
             res.setError(new Error(1,"La duree d'un enchère ne peut depasser de " + p.getParametreValue().getValeur() + " heures"));
         }
         return g.toJson(res);
-    }
-    
-    @GetMapping("/{idClient}")
-    public String getListeEnchere(@PathVariable("idClient") int idClient) throws Exception {
-        Enchere enc = new Enchere();
-        enc.setIdClient(idClient);
-        ArrayList<Enchere> liste = enc.listeEnchere();
-        return g.toJson(liste);
     }
     
     @GetMapping("/enchere/statut")

@@ -12,8 +12,12 @@ import com.example.restservice.generic.GenericDAO;
 import java.sql.Connection;
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.text.DateFormat;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Timer;
 
 /**
  *
@@ -89,8 +93,7 @@ public class Enchere {
     }
 
     public Timestamp getDateDebut() {
-        Timestamp dt = Timestamp.valueOf(LocalDateTime.now());
-        return dt;
+        return this.dateDebut;
     }
 
     public void setDateDebut(Timestamp dateDebut) {
@@ -156,10 +159,13 @@ public class Enchere {
     public ArrayList<Enchere> listeEnchere() throws Exception{
         Connection connect = new Connexion().getConnexion();
         String requete = "SELECT * FROM Enchere WHERE idClient = " + this.idClient;
-        System.out.println(requete);
         ArrayList<Enchere> liste = new ArrayList<Enchere>();
         try{
             liste = (ArrayList<Enchere>)GenericDAO.findBySql(this,requete,connect);
+            for(int i=0; i<liste.size(); i++){
+                System.out.println(i);
+                liste.get(i).executeUpdateStatut();
+            }
         }
         catch(Exception e){
             throw e;
@@ -174,6 +180,7 @@ public class Enchere {
         Timestamp dt = this.getDateDebut();
         String str = dt.toString().replace(" ", "T");
         LocalDateTime date = LocalDateTime.parse(str);
+        System.out.println("DEBUT: "+date);
         LocalDateTime newDate = date.plusHours((long) this.getDuree());
         Timestamp fin = Timestamp.valueOf(newDate.toString().replace("T", " "));
         return fin;
@@ -186,5 +193,29 @@ public class Enchere {
             return true;
         }
         return false;
+    }
+    
+    public void executeUpdateStatut() throws Exception{
+        Tache t = new Tache();
+        t.setEnc(this);
+        Timer timer = new Timer();
+        Timestamp tm = this.getFinEnchere();
+        System.out.println("FIN: "+tm);
+        DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        java.util.Date date = df.parse(tm.toString());
+        timer.schedule(t, date);
+    }
+    
+    public void updateStatut() throws Exception{
+        Connection connect = new Connexion().getConnexion();
+	    try{
+            GenericDAO.update(this,connect);
+        }
+        catch(Exception e){
+            throw e;
+        }
+        finally{
+            connect.close();
+        }
     }
 }
