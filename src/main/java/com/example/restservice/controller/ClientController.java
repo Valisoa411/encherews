@@ -11,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import java.util.*;
 import com.example.restservice.model.Client;
+import com.example.restservice.model.Enchere;
 import com.example.restservice.token.Token;
 import com.google.gson.Gson;
 
@@ -30,5 +31,13 @@ public class ClientController {
         cl.setPassword(password);
         cl.setSolde(0);
         cl.insert();
+    }
+    
+    @GetMapping("/{idClient}/encheres")
+    public String getListeEnchere(@PathVariable("idClient") int idClient) throws Exception {
+        Enchere enc = new Enchere();
+        enc.setIdClient(idClient);
+        ArrayList<Enchere> liste = enc.listeEnchere();
+        return g.toJson(liste);
     }
 }
