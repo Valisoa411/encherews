@@ -239,17 +239,17 @@ public class GenericDAO {
             System.out.println(sql);
             
             res = stm.executeQuery(sql);
-            res.next();
-            for(int i=0;i<cols.size();i++){
-                Field f = flds.get(i);
-                String col = cols.get(i);
-                met = clas.getDeclaredMethod("set"+upperStart(f.getName()),f.getType());
-                met.invoke(object,res.getObject(col));
+            while( res.next() ){
+                for(int i=0;i<cols.size();i++){
+                    Field f = flds.get(i);
+                    String col = cols.get(i);
+                    met = clas.getDeclaredMethod("set"+upperStart(f.getName()),f.getType());
+                    met.invoke(object,res.getObject(col));
+                }
             }
             return object;
         }
         catch (Exception e) {
-            con.rollback();
             throw e;
         }
         finally{
@@ -333,7 +333,6 @@ public class GenericDAO {
             return val;
         }
         catch (Exception e) {
-            con.rollback();
             throw e;
         }
         finally{
@@ -401,7 +400,6 @@ public class GenericDAO {
             return val;
         }
         catch (Exception e) {
-            con.rollback();
             throw e;
         }
         finally{
@@ -467,7 +465,6 @@ public class GenericDAO {
             return val;
         }
         catch (Exception e) {
-            // con.rollback();
             throw e;
         }
         finally{
@@ -507,7 +504,6 @@ public class GenericDAO {
             return val.get(0);
         }
         catch (Exception e) {
-            con.rollback();
             throw e;
         }
         finally{

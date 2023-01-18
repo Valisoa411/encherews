@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.sql.Connection;
 import java.util.*;
 import com.example.restservice.model.Client;
+import com.example.restservice.model.Enchere;
 import com.example.restservice.token.Token;
 import com.google.gson.Gson;
 
@@ -34,6 +35,14 @@ public class ClientController {
         cl.setSolde(0);
         cl.insert();
     }
+
+    @GetMapping("/{idClient}/encheres")
+    public String getListeEnchere(@PathVariable("idClient") int idClient) throws Exception {
+        Enchere enc = new Enchere();
+        enc.setIdClient(idClient);
+        ArrayList<Enchere> liste = enc.listeEnchere();
+        return g.toJson(liste);
+    }
     
     @PostMapping("/login")
     public String login(@RequestParam String email,@RequestParam String mdp) throws Exception {
@@ -42,7 +51,7 @@ public class ClientController {
         String res = "";
         Response r = new  Response();
         try {
-            list = GenericDAO.findBySql(new Client(), "SELECT * FROM CLIENT WHERE EMAIL='"+email+"' AND MDP='"+mdp+"'", con);
+            list = GenericDAO.findBySql(new Client(), "SELECT * FROM CLIENT WHERE EMAIL='"+email+"' AND PASSWORD='"+mdp+"'", con);
             if(!list.isEmpty()){
                 Client user = list.get(0);
                 Token token = new Token(user.getId());

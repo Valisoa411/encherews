@@ -78,5 +78,6 @@ ALTER TABLE EnchereImage ADD CONSTRAINT FKEnchereIma988998 FOREIGN KEY (idEncher
 ALTER TABLE Proposition ADD CONSTRAINT FKPropositio274870 FOREIGN KEY (idClient) REFERENCES Client (id);
 ALTER TABLE Proposition ADD CONSTRAINT FKPropositio277092 FOREIGN KEY (idEnchere) REFERENCES Enchere (id);
 
+DELETE FROM CLIENT;
 INSERT INTO Client VALUES (default, 'Rakoto', 'rakoto@gmail.com', 'rakoto123', 100000);
 INSERT INTO Client VALUES (default, 'Rasoa', 'rasoa@yahoo.fr', 'rasoa0000', 150000);

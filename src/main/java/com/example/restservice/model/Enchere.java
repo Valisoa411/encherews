@@ -189,7 +189,7 @@ public class Enchere {
     }
 
     public static ArrayList<Enchere> allNonFini() throws Exception {
-        String sql = "SELECT * FROM ENCHERE WHERE AND STATUS=11";
+        String sql = "SELECT * FROM ENCHERE WHERE STATUT=11";
         ArrayList<Enchere> list = new ArrayList<Enchere>();
         try (Connection con = new Connexion().getConnexion()) {
             list = (ArrayList<Enchere>)GenericDAO.findBySql(new Enchere(),sql,con);

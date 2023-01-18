@@ -46,14 +46,6 @@ public class EnchereController {
         return g.toJson(res);
     }
     
-    @GetMapping("/{idClient}")
-    public String getListeEnchere(@PathVariable("idClient") int idClient) throws Exception {
-        Enchere enc = new Enchere();
-        enc.setIdClient(idClient);
-        ArrayList<Enchere> liste = enc.listeEnchere();
-        return g.toJson(liste);
-    }
-    
     @GetMapping("/enchere/statut")
     public String getStatut(@RequestParam int statut) throws Exception {
         Enchere enc = new Enchere();
