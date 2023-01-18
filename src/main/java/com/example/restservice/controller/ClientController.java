@@ -3,12 +3,15 @@ package com.example.restservice.controller;
 import com.example.restservice.Response.Error;
 import com.example.restservice.Response.Response;
 import com.example.restservice.Response.Success;
+import com.example.restservice.generic.Connexion;
 import com.example.restservice.generic.GenericDAO;
 import java.util.concurrent.atomic.AtomicLong;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.sql.Connection;
 import java.util.*;
 import com.example.restservice.model.Client;
 import com.example.restservice.token.Token;
@@ -30,5 +33,48 @@ public class ClientController {
         cl.setPassword(password);
         cl.setSolde(0);
         cl.insert();
+    }
+    
+    @PostMapping("/login")
+    public String login(@RequestParam String email,@RequestParam String mdp) throws Exception {
+        Connection con=Connexion.getConnexion();
+        ArrayList<Client> list = new ArrayList<Client>();
+        String res = "";
+        Response r = new  Response();
+        try {
+            list = GenericDAO.findBySql(new Client(), "SELECT * FROM CLIENT WHERE EMAIL='"+email+"' AND MDP='"+mdp+"'", con);
+            if(!list.isEmpty()){
+                Client user = list.get(0);
+                Token token = new Token(user.getId());
+                GenericDAO.save(token, con);
+                r.setData(new Success("Login Success"));
+                r.addAttribute("token", "bearer "+token.getToken());
+            }
+            else{
+                r.setError(new Error(1,"Authentification echouee"));
+            }
+            res = g.toJson(r);
+        } catch (Exception e) {
+            e.printStackTrace();
+        } finally {
+            if(con!=null)con.close();
+        }
+        return res;
+    }
+
+    @GetMapping("/logout")
+    public String logout(@RequestParam String token) throws Exception {
+        Response res = new Response();
+        try (Connection con = Connexion.getConnexion()) {
+            Token t = Token.check(token);
+            t.kill(con);
+            res.setData(new Success("Deconnexion reussi"));
+            return g.toJson(res);
+        } catch (ExpiredJwtException e) {
+            res.setData(new Success("Deconnexion reussi"));
+            return g.toJson(res);
+        } catch (Exception e) {
+            throw e;
+        }
     }
 }

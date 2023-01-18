@@ -61,4 +61,24 @@ public class EnchereController {
         String lib = enc.getStatutLibelle();
         return g.toJson(lib);
     }
+
+    @GetMapping
+    public String allEnchere() throws Exception {
+        Response res = new Response();
+        ArrayList<Enchere> list = Enchere.allNonFini();
+        res.setData(new Success("Liste des encheres"));
+        res.addAttribute("listenchere", list);
+        return g.toJson(res);
+    }
+
+    @GetMapping("/{id}")
+    public String getEnchere(@PathVariable("id") int id) throws Exception {
+        Response res = new Response();
+        Enchere enc = new Enchere();
+        enc.setId(id);
+        enc = enc.getEnchere();
+        res.setData(new Success("Enchere"));
+        res.addAttribute("enc", enc);
+        return g.toJson(res);
+    }
 }

@@ -187,4 +187,26 @@ public class Enchere {
         }
         return false;
     }
+
+    public static ArrayList<Enchere> allNonFini() throws Exception {
+        String sql = "SELECT * FROM ENCHERE WHERE AND STATUS=11";
+        ArrayList<Enchere> list = new ArrayList<Enchere>();
+        try (Connection con = new Connexion().getConnexion()) {
+            list = (ArrayList<Enchere>)GenericDAO.findBySql(new Enchere(),sql,con);
+        }
+        catch(Exception e){
+            throw e;
+        }
+        return list;
+    }
+
+    public Enchere getEnchere() throws Exception {
+        ArrayList<Enchere> liste = new ArrayList<Enchere>();
+        try (Connection con = new Connexion().getConnexion()) {
+            return (Enchere)GenericDAO.get(this,con);
+        }
+        catch(Exception e){
+            throw e;
+        }
+    }
 }
