@@ -67,8 +67,7 @@ public class EnchereController {
     public String getEnchere(@PathVariable("id") int id) throws Exception {
         Response res = new Response();
         Enchere enc = new Enchere();
-        enc.setId(id);
-        enc = enc.getEnchere();
+        enc = Enchere.getEnchere(id);
         res.setData(new Success("Enchere"));
         res.addAttribute("enc", enc);
         return g.toJson(res);

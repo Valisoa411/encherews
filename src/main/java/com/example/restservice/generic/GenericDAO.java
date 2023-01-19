@@ -129,9 +129,6 @@ public class GenericDAO {
                 if(v != null){
                     val += col+"='"+v.toString()+"'";
                 }
-                else{
-                    val += col+"=null";
-                }
                 if(i != values.size()-1){
                     val += ",";
                 }

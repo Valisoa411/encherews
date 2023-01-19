@@ -10,7 +10,7 @@ import com.example.restservice.generic.ClassAnotation;
 import com.example.restservice.generic.Connexion;
 import com.example.restservice.generic.GenericDAO;
 import java.sql.Connection;
-import java.sql.Date;
+import java.util.Date;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -39,7 +39,9 @@ public class Enchere {
     int idClient;
     @Attr
     int idCategorie;
-
+    
+    Proposition last;
+    
     public int getId() {
         return id;
     }
@@ -114,6 +116,10 @@ public class Enchere {
     }
 
     public Enchere() {
+    }
+
+    public Enchere(int id) {
+        this.id = id;
     }
 
     public Enchere(String nomProduit, String description, double prixEnchere, double duree, int statut, Timestamp dateDebut, int idClient, int idCategorie) {
@@ -200,13 +206,34 @@ public class Enchere {
         return list;
     }
 
-    public Enchere getEnchere() throws Exception {
-        ArrayList<Enchere> liste = new ArrayList<Enchere>();
+    public static Enchere getEnchere(int id) throws Exception {
         try (Connection con = new Connexion().getConnexion()) {
-            return (Enchere)GenericDAO.get(this,con);
+            return (Enchere)GenericDAO.get(new Enchere(id),con);
         }
         catch(Exception e){
             throw e;
         }
+    }
+    
+    public Proposition lastProp() {
+        if(last != null) return last;
+        try (Connection con = new Connexion().getConnexion()) {
+            String sql = "SELECT * FROM PROPOSITION WHERE IDENCHERE="+id+" ORDER BY MONTANT DESC LIMIT 1";
+            ArrayList<Proposition> list = (ArrayList<Proposition>) GenericDAO.findBySql(new Proposition(), sql, con);
+            if(list.isEmpty()) throw new Exception("No proposition");
+            last = list.get(0);
+        } catch (Exception e) {
+            System.out.println("Exception : "+e.getMessage());
+        }
+        return last;
+    }
+    
+    public void addProposition(int idClient,double montant,Connection con) throws Exception {
+        lastProp();
+        if(last != null)
+            if(last.getMontant()>=montant)
+                throw new Exception("Not enough value");
+        Proposition newLast = new Proposition(0,idClient,id,montant,new Date());
+        GenericDAO.save(newLast, con);
     }
 }
