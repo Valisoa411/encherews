@@ -2,12 +2,12 @@ CREATE ROLE enchere LOGIN PASSWORD 'enchere';
 
 --------------------------------------------------
 \c postgres postgres
-root
+val
 
-DROP DATABASE encherecopy;
-CREATE DATABASE encherecopy;
-ALTER DATABASE encherecopy OWNER TO enchere;
-\c encherecopy enchere
+DROP DATABASE enchere;
+CREATE DATABASE enchere;
+ALTER DATABASE enchere OWNER TO enchere;
+\c enchere enchere
 enchere
 
 CREATE TABLE Admin (

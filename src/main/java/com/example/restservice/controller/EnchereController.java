@@ -57,19 +57,56 @@ public class EnchereController {
     @GetMapping
     public String allEnchere() throws Exception {
         Response res = new Response();
-        ArrayList<Enchere> list = Enchere.allNonFini();
-        res.setData(new Success("Liste des encheres"));
-        res.addAttribute("listenchere", list);
+        try {
+            ArrayList<Enchere> list = Enchere.allNonFini();
+            res.setData(new Success("Liste des encheres"));
+            res.addAttribute("listenchere", list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            res.setError(new Error(1, "Error : "+e));
+        }
         return g.toJson(res);
     }
 
     @GetMapping("/{id}")
     public String getEnchere(@PathVariable("id") int id) throws Exception {
         Response res = new Response();
-        Enchere enc = new Enchere();
-        enc = Enchere.getEnchere(id);
-        res.setData(new Success("Enchere"));
-        res.addAttribute("enc", enc);
+        try {
+            Enchere enc = new Enchere();
+            enc = Enchere.getEnchere(id);
+            res.setData(new Success("Enchere"));
+            res.addAttribute("enc", enc);
+        } catch (Exception e) {
+            e.printStackTrace();
+            res.setError(new Error(1, "Error : "+e));
+        }
+        return g.toJson(res);
+    }
+
+    @GetMapping("/filtrer")
+    public String filtrer(
+        @RequestParam(defaultValue = "") String motcle,
+        @RequestParam(defaultValue = "") String d1,
+        @RequestParam(defaultValue = "") String d2,
+        @RequestParam String[] categories,
+        @RequestParam(defaultValue = "-1") int statut
+    ) throws Exception {
+        Response res = new Response();
+        try {
+            Date[] dates = new Date[2];
+            try {
+                if(!d1.isEmpty()) dates[0] = new Date(d1.replace("-", "/"));
+                if(!d2.isEmpty()) dates[1] = new Date(d2.replace("-", "/"));
+            } catch (Exception e) {
+                // e.printStackTrace();
+            }
+            ArrayList<Enchere> list = Enchere.filtrer(motcle, dates, categories, statut);
+            res.setData(new Success("Filtre reussir"));
+            res.addAttribute("listenchere", list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            res.setError(new Error(1,"Error : "+e));
+        }
         return g.toJson(res);
     }
 }

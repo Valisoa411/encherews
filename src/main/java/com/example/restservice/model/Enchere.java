@@ -236,4 +236,20 @@ public class Enchere {
         Proposition newLast = new Proposition(0,idClient,id,montant,new Date());
         GenericDAO.save(newLast, con);
     }
+
+    public static ArrayList<Enchere> filtrer(String motcle,Date[] dates,String[] categories,int statut) throws Exception {
+        String sql = "SELECT * FROM ENCHERE WHERE 1=1";
+        if(motcle!=null && !motcle.isEmpty()) sql += " AND DESCRIPTION LIKE '%"+motcle+"%'";
+        if(dates[0]!=null && dates[1]!=null) sql += " AND (DATEDEBUT BETWEEN '"+dates[0]+"' AND '"+dates[1]+"')";
+        if(categories.length!=0) sql += " AND IDCATEGORIE IN ("+String.join(",",categories)+")";
+        if(statut!=-1) sql += " AND STATUT="+statut;
+        ArrayList<Enchere> val = new ArrayList<Enchere>();
+        try (Connection con = new Connexion().getConnexion()) {
+            val = (ArrayList<Enchere>) GenericDAO.findBySql(new Enchere(), sql, con);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+        return val;
+    }
 }
