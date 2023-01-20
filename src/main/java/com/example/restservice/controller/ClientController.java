@@ -100,7 +100,7 @@ public class ClientController {
             int id = t.getIdClient();
             Client connected = Client.getClient(id);
             Enchere selected = Enchere.getEnchere(idEnchere);
-            if(!connected.checkSolde(montant)) throw new Exception();
+            if(!connected.checkSolde(montant)) throw new Exception("Solde insufisant");
             Proposition last = selected.lastProp();
             if(last!=null){
                 Client lastCli = Client.getClient(last.getIdClient());
