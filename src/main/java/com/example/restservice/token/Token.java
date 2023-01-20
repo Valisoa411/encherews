@@ -40,8 +40,8 @@ public class Token {
     @Attr
     String token;
     Date dateexpiration;
-    @Attr(col = "idutilisateur")
-    int utilisateur;
+    @Attr
+    int idClient;
 
     public Token(){}
 
@@ -49,8 +49,8 @@ public class Token {
         init(token);
     }
 
-    public Token(int idutilisateur){
-        String token = Token.CreerToken(idutilisateur);
+    public Token(int idclient){
+        String token = Token.CreerToken(idclient);
         init(token);
     }
 
@@ -59,7 +59,7 @@ public class Token {
                 .parseClaimsJws(token).getBody();
         setToken(token);
         setDateexpiration(cl.getExpiration());
-        setUtilisateur((int)cl.get("idutilisateur"));
+        setIdClient((int)cl.get("idclient"));
     }
 
     public int getId() {
@@ -85,22 +85,22 @@ public class Token {
     public void setDateexpiration(Date dateexpiration) {
         this.dateexpiration = dateexpiration;
     }
-
-    public int getUtilisateur() {
-        return utilisateur;
+    
+    public int getIdClient() {
+        return idClient;
     }
 
-    public void setUtilisateur(int utilisateur) {
-        this.utilisateur = utilisateur;
+    public void setIdClient(int idClient) {
+        this.idClient = idClient;
     }
 
-    public static String CreerToken(int utilisateurid) {
+    public static String CreerToken(int clientid) {
         long now = System.currentTimeMillis();
         Date dt = new Date(now + Token.DateEXP);
         String token = Jwts.builder().signWith(SignatureAlgorithm.HS256, Token.keyToken)
                 .setIssuedAt(new Date(now))
                 .setExpiration(dt)
-                .claim("idutilisateur", utilisateurid)
+                .claim("idclient", clientid)
                 .compact();
         return token;
     }
@@ -123,7 +123,7 @@ public class Token {
         if(!token.startsWith(bearer)) throw new Exception("Invalid token; no bearer");
         Token t = new Token(token.substring(bearer.length()));
         try (Connection con=Connexion.getConnexion()) {
-            ArrayList<Token> list = (ArrayList<Token>) GenericDAO.findBySql(new Token(), "SELECT * FROM TOKEN WHERE IDUTILISATEUR="+t.getUtilisateur()+" AND TOKEN='"+t.getToken()+"'", con);
+            ArrayList<Token> list = (ArrayList<Token>) GenericDAO.findBySql(new Token(), "SELECT * FROM TOKEN WHERE IDCLIENT="+t.getIdClient()+" AND TOKEN='"+t.getToken()+"'", con);
             if(list.isEmpty()) throw new Exception("Not Connected");
             return (Token)list.get(0);
         } catch (Exception e) {

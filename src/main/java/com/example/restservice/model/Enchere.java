@@ -10,7 +10,7 @@ import com.example.restservice.generic.ClassAnotation;
 import com.example.restservice.generic.Connexion;
 import com.example.restservice.generic.GenericDAO;
 import java.sql.Connection;
-import java.sql.Date;
+import java.util.Date;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -43,7 +43,9 @@ public class Enchere {
     int idClient;
     @Attr
     int idCategorie;
-
+    
+    Proposition last;
+    
     public int getId() {
         return id;
     }
@@ -117,6 +119,10 @@ public class Enchere {
     }
 
     public Enchere() {
+    }
+
+    public Enchere(int id) {
+        this.id = id;
     }
 
     public Enchere(String nomProduit, String description, double prixEnchere, double duree, int statut, Timestamp dateDebut, int idClient, int idCategorie) {
@@ -211,11 +217,67 @@ public class Enchere {
 	    try{
             GenericDAO.update(this,connect);
         }
-        catch(Exception e){
-            throw e;
-        }
         finally{
             connect.close();
         }
+    }
+
+    public static ArrayList<Enchere> allNonFini() throws Exception {
+        String sql = "SELECT * FROM ENCHERE WHERE STATUT=11";
+        ArrayList<Enchere> list = new ArrayList<Enchere>();
+        try (Connection con = new Connexion().getConnexion()) {
+            list = (ArrayList<Enchere>)GenericDAO.findBySql(new Enchere(),sql,con);
+        }
+        catch(Exception e){
+            throw e;
+        }
+        return list;
+    }
+
+    public static Enchere getEnchere(int id) throws Exception {
+        try (Connection con = new Connexion().getConnexion()) {
+            return (Enchere)GenericDAO.get(new Enchere(id),con);
+        }
+        catch(Exception e){
+            throw e;
+        }
+    }
+    
+    public Proposition lastProp() {
+        if(last != null) return last;
+        try (Connection con = new Connexion().getConnexion()) {
+            String sql = "SELECT * FROM PROPOSITION WHERE IDENCHERE="+id+" ORDER BY MONTANT DESC LIMIT 1";
+            ArrayList<Proposition> list = (ArrayList<Proposition>) GenericDAO.findBySql(new Proposition(), sql, con);
+            if(list.isEmpty()) throw new Exception("No proposition");
+            last = list.get(0);
+        } catch (Exception e) {
+            System.out.println("Exception : "+e.getMessage());
+        }
+        return last;
+    }
+    
+    public void addProposition(int idClient,double montant,Connection con) throws Exception {
+        lastProp();
+        if(last != null)
+            if(last.getMontant()>=montant)
+                throw new Exception("Not enough value");
+        Proposition newLast = new Proposition(0,idClient,id,montant,new Date());
+        GenericDAO.save(newLast, con);
+    }
+
+    public static ArrayList<Enchere> filtrer(String motcle,Date[] dates,String[] categories,int statut) throws Exception {
+        String sql = "SELECT * FROM ENCHERE WHERE 1=1";
+        if(motcle!=null && !motcle.isEmpty()) sql += " AND DESCRIPTION LIKE '%"+motcle+"%'";
+        if(dates[0]!=null && dates[1]!=null) sql += " AND (DATEDEBUT BETWEEN '"+dates[0]+"' AND '"+dates[1]+"')";
+        if(categories.length!=0) sql += " AND IDCATEGORIE IN ("+String.join(",",categories)+")";
+        if(statut!=-1) sql += " AND STATUT="+statut;
+        ArrayList<Enchere> val = new ArrayList<Enchere>();
+        try (Connection con = new Connexion().getConnexion()) {
+            val = (ArrayList<Enchere>) GenericDAO.findBySql(new Enchere(), sql, con);
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
+        return val;
     }
 }

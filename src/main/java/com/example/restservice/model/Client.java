@@ -79,6 +79,18 @@ public class Client {
 
     public Client() {
     }
+
+    public Client(int id) {
+        this.id = id;
+    }
+    
+    public static Client getClient(int id) throws Exception {
+        try (Connection con = new Connexion().getConnexion()) {
+            return (Client)GenericDAO.get(new Client(id), con);
+        } catch (Exception e) {
+            throw e;
+        }
+    }
     
     public void insert() throws Exception{
         Connection connect = new Connexion().getConnexion();
@@ -91,5 +103,19 @@ public class Client {
         finally{
             connect.close();
         }
+    }
+
+    public boolean checkSolde(double montant){
+        return montant<=solde;
+    }
+
+    public void blockSolde(double montant,Connection con) throws Exception {
+        solde -= montant;
+        GenericDAO.update(this,con);
+    }
+    
+    public void unblockSolde(Proposition prop,Connection con) throws Exception {
+        solde += prop.getMontant();
+        GenericDAO.update(this, con);
     }
 }

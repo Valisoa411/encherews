@@ -11,7 +11,7 @@ ALTER DATABASE enchere OWNER TO enchere;
 enchere
 
 CREATE TABLE Admin (
-  id       SERIAL NOT NULL, 
+  id       SERIAL NOT NULL,
   email    varchar(255), 
   password varchar(50), 
   PRIMARY KEY (id));
@@ -77,6 +77,3 @@ ALTER TABLE Enchere ADD CONSTRAINT FKEnchere925968 FOREIGN KEY (idCategorie) REF
 ALTER TABLE EnchereImage ADD CONSTRAINT FKEnchereIma988998 FOREIGN KEY (idEnchere) REFERENCES Enchere (id);
 ALTER TABLE Proposition ADD CONSTRAINT FKPropositio274870 FOREIGN KEY (idClient) REFERENCES Client (id);
 ALTER TABLE Proposition ADD CONSTRAINT FKPropositio277092 FOREIGN KEY (idEnchere) REFERENCES Enchere (id);
-
-INSERT INTO Client VALUES (default, 'Rakoto', 'rakoto@gmail.com', 'rakoto123', 100000);
-INSERT INTO Client VALUES (default, 'Rasoa', 'rasoa@yahoo.fr', 'rasoa0000', 150000);
