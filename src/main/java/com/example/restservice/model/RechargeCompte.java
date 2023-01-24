@@ -97,9 +97,9 @@ public class RechargeCompte {
         return state;
     }
     
-    public ArrayList<RechargeCompte> historiqueRecharge() throws Exception{
+    public ArrayList<RechargeCompte> historiqueRecharge(int idClient) throws Exception{
         Connection connect = new Connexion().getConnexion();
-        String requete = "SELECT * FROM RechargeCompte";
+        String requete = "SELECT * FROM RechargeCompte WHERE IDCLIENT="+idClient;
         ArrayList<RechargeCompte> liste = new ArrayList<RechargeCompte>();
         try{
             liste = (ArrayList<RechargeCompte>)GenericDAO.findBySql(this,requete,connect);

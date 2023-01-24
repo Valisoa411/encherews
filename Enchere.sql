@@ -33,12 +33,18 @@ CREATE TABLE RechargeCompte (
   idClient int4 NOT NULL, 
   "date"   date, 
   valeur   float8, 
-  etat     int4, 
+  etat     int4 default 1, 
   PRIMARY KEY (id));
+--0 refuser
+--1 creer
+--5 accepter
 CREATE TABLE Categorie (
   id      SERIAL NOT NULL, 
-  libelle varchar(100), 
+  libelle varchar(100),
+  etat    int4 default 0,
   PRIMARY KEY (id));
+--0 existe
+--1 supprimer
 CREATE TABLE Parametre (
   id      SERIAL NOT NULL, 
   libelle varchar(100), 
@@ -56,12 +62,12 @@ CREATE TABLE Enchere (
   idCategorie int4 NOT NULL, 
   PRIMARY KEY (id));
 --STATUS
---11 CREER
---21 VENDU
+--1 CREER
+--5 VENDU
 
 CREATE TABLE EnchereImage (
   idEnchere int4 NOT NULL, 
-  image     varchar(255));
+  image     bytea);
 CREATE TABLE Proposition (
   id        SERIAL NOT NULL, 
   idClient  int4 NOT NULL, 

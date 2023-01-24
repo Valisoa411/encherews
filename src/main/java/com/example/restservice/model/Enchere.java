@@ -188,7 +188,8 @@ public class Enchere {
         LocalDateTime date = LocalDateTime.parse(str);
         System.out.println("DEBUT: "+date);
         LocalDateTime newDate = date.plusHours((long) this.getDuree());
-        Timestamp fin = Timestamp.valueOf(newDate.toString().replace("T", " "));
+        System.out.println("Fin Enchere : "+newDate.toString().replace("T", " "));
+        Timestamp fin = new Timestamp(newDate.getYear(),newDate.getMonthValue(),newDate.getDayOfMonth(),newDate.getHour(),newDate.getMinute(),newDate.getSecond(),newDate.getNano());
         return fin;
     }
     

@@ -15,6 +15,7 @@ import java.util.*;
 import com.example.restservice.model.Client;
 import com.example.restservice.model.Enchere;
 import com.example.restservice.model.Proposition;
+import com.example.restservice.model.RechargeCompte;
 import com.example.restservice.token.Token;
 import com.google.gson.Gson;
 
@@ -25,6 +26,11 @@ import io.jsonwebtoken.ExpiredJwtException;
 @RequestMapping("/clients")
 public class ClientController {
     Gson g = new Gson();
+
+    @GetMapping("/test/{val}")
+    public String test(@PathVariable String val,@RequestParam String val0){
+        return "Connect val="+val+" val0="+val0;
+    }
         
     @PostMapping("/client")
     public void inscription(@RequestParam String nom,@RequestParam String email,@RequestParam String password) throws Exception{
@@ -119,4 +125,14 @@ public class ClientController {
         }
         return g.toJson(res);
     }
+
+    
+    @GetMapping("/compte")
+    public String getAllRecharge(@RequestParam String token) throws Exception {
+        RechargeCompte rc = new RechargeCompte();
+        Token tk = Token.check(token);
+        ArrayList<RechargeCompte> liste = rc.historiqueRecharge(tk.getIdClient());
+        return g.toJson(liste);
+    }
+    
 }

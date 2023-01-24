@@ -27,21 +27,21 @@ public class RechargeCompteController {
     Gson g = new Gson();
         
     @PostMapping("/compte")
-    public void doRechargeCompte(@RequestParam int idClient,@RequestParam double valeur) throws Exception{
+    public void doRechargeCompte(@RequestParam String token,@RequestParam double valeur) throws Exception{
+        Token tk = null;
+        try {
+            tk = Token.check(token);
+        } catch (Exception e) {
+            throw e;
+        }
+        int idClient = tk.getIdClient();
         RechargeCompte rc = new RechargeCompte();
         java.sql.Date d = java.sql.Date.valueOf(LocalDate.now());
         rc.setDate(d);
-        rc.setEtat(0);
+        rc.setEtat(11);
         rc.setIdClient(idClient);
         rc.setValeur(valeur);
         rc.rechargerCompte();
-    }
-    
-    @GetMapping
-    public String getAllRecharge() throws Exception {
-        RechargeCompte rc = new RechargeCompte();
-        ArrayList<RechargeCompte> liste = rc.historiqueRecharge();
-        return g.toJson(liste);
     }
     
     @GetMapping("/compte/etat")

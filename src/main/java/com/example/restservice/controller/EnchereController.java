@@ -27,7 +27,13 @@ public class EnchereController {
     Gson g = new Gson();
         
     @PostMapping("/enchere")
-    public String addEnchere(@RequestParam String nomProduit,@RequestParam String description,double prixEnchere,double duree,@RequestParam int statut,@RequestParam int idClient,@RequestParam int idCategorie) throws Exception{
+    public String addEnchere(@RequestParam String token,@RequestParam String nomProduit,@RequestParam String description,double prixEnchere,double duree,@RequestParam int statut,@RequestParam int idClient,@RequestParam int idCategorie) throws Exception{
+        Token tk = null;
+        try {
+            tk = Token.check(token);
+        } catch (Exception e) {
+            throw e;
+        }
         Enchere enc = new Enchere();
         Response res = new Response();
         Parametre p = new Parametre("DureeEnchere");
@@ -38,8 +44,8 @@ public class EnchereController {
             enc.setDescription(description);
             enc.setPrixEnchere(prixEnchere);
             enc.setDuree(duree);
-            enc.setStatut(statut);
-            enc.setIdClient(idClient);
+            enc.setStatut(11);
+            enc.setIdClient(tk.getIdClient());
             enc.setIdCategorie(idCategorie);
             enc.insert();
             res.setData(new Success("Enchere ajouté avec succes"));
