@@ -11,6 +11,7 @@ import com.example.restservice.generic.Connexion;
 import com.example.restservice.generic.GenericDAO;
 import java.sql.Connection;
 import java.util.Date;
+import java.util.List;
 import java.sql.Timestamp;
 import java.text.DateFormat;
 import java.text.ParseException;
@@ -45,6 +46,7 @@ public class Enchere {
     int idCategorie;
     
     Proposition last;
+    ArrayList<EnchereImage> images;
     
     public int getId() {
         return id;
@@ -125,6 +127,22 @@ public class Enchere {
         this.id = id;
     }
 
+    public Proposition getLast() {
+        return last;
+    }
+
+    public void setLast(Proposition last) {
+        this.last = last;
+    }
+
+    public ArrayList<EnchereImage> getImages() {
+        return images;
+    }
+
+    public void setImages(ArrayList<EnchereImage> images) {
+        this.images = images;
+    }
+
     public Enchere(String nomProduit, String description, double prixEnchere, double duree, int statut, Timestamp dateDebut, int idClient, int idCategorie) {
         this.nomProduit = nomProduit;
         this.description = description;
@@ -149,12 +167,20 @@ public class Enchere {
         }
     }
     
-    public void insert() throws Exception{
+    public int insert() throws Exception{
         Connection connect = new Connexion().getConnexion();
 	try{
+            connect.setAutoCommit(false);
             GenericDAO.save(this,connect);
+            String sqlGetLastRecordID = "SELECT * FROM enchere ORDER BY id DESC LIMIT 1";
+            List<Enchere> listEnchere = GenericDAO.findBySql(this, sqlGetLastRecordID, connect);
+            connect.commit();
+            if(listEnchere.isEmpty())throw new Exception("There is no enchere recorded in the database");
+            return listEnchere.get(0).getId();
+            
         }
         catch(Exception e){
+            connect.rollback();
             throw e;
         }
         finally{
@@ -189,7 +215,10 @@ public class Enchere {
         System.out.println("DEBUT: "+date);
         LocalDateTime newDate = date.plusHours((long) this.getDuree());
         System.out.println("Fin Enchere : "+newDate.toString().replace("T", " "));
-        Timestamp fin = new Timestamp(newDate.getYear(),newDate.getMonthValue(),newDate.getDayOfMonth(),newDate.getHour(),newDate.getMinute(),newDate.getSecond(),newDate.getNano());
+        System.out.println("Year: "+newDate.getYear());
+//        Timestamp fin = new Timestamp(newDate.getYear(),newDate.getMonthValue(),newDate.getDayOfMonth(),newDate.getHour(),newDate.getMinute(),newDate.getSecond(),newDate.getNano());
+        Timestamp fin = Timestamp.valueOf(newDate);
+        System.out.println("Timestamp "+fin);
         return fin;
     }
     
@@ -209,8 +238,11 @@ public class Enchere {
         Timestamp tm = this.getFinEnchere();
         System.out.println("FIN: "+tm);
         DateFormat df = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+//        DateFormat df2 = new SimpleDateFormat("MMM dd, yyyy hh:mm:ss a");
         java.util.Date date = df.parse(tm.toString());
+//        java.util.Date date2 = df2.parse(tm.toString());
         timer.schedule(t, date);
+//        timer.schedule(t, date2);
     }
     
     public void updateStatut() throws Exception{
@@ -281,4 +313,40 @@ public class Enchere {
         }
         return val;
     }
+
+    // public void sendNotification(String token, String title, String message) throws FirebaseMessagingException {
+    //     Notification notif = Notification.builder()
+    //         .setTitle("Titre de la notification")
+    //         .setBody("Corps de la notification")
+    //         .build();
+        
+    //     Message notification = Message.builder()
+    //         .setToken(token)
+    //         .setNotification(notif)
+    //         .build();
+
+    //     String response = FirebaseMessaging.getInstance().send(notification);
+    //     System.out.println("Notification sent successfully: " + response);
+    // }
+    
+    public ArrayList<Enchere> searchEnchere(String mot) throws Exception{
+        Connection connect = new Connexion().getConnexion();
+        String requete = "SELECT * FROM Enchere WHERE idClient = " + this.idClient + " and (nomProduit like '%"+mot+"%' or description like '%"+mot+"%')";
+        ArrayList<Enchere> liste = new ArrayList<Enchere>();
+        try{
+            liste = (ArrayList<Enchere>)GenericDAO.findBySql(this,requete,connect);
+            for(int i=0; i<liste.size(); i++){
+                System.out.println(i);
+                liste.get(i).executeUpdateStatut();
+            }
+        }
+        catch(Exception e){
+            throw e;
+        }
+        finally{
+            connect.close();
+        }
+        return liste;
+    }
+
 }

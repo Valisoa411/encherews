@@ -19,6 +19,7 @@ import java.util.*;
 import com.example.restservice.model.Client;
 import com.example.restservice.model.Enchere;
 import com.example.restservice.model.EnchereImage;
+import com.example.restservice.model.Photo;
 import com.example.restservice.token.Token;
 import com.google.gson.Gson;
 
@@ -30,29 +31,29 @@ import io.jsonwebtoken.ExpiredJwtException;
 public class EnchereImageController {
     Gson g = new Gson();
         
-    @PostMapping("/enchereImage")
-    public void addImage(@RequestParam int idEnchere,@RequestParam String image) throws Exception{
+    // @PostMapping("/enchereImage")
+    // public void addImage(@RequestParam int idEnchere,@RequestParam String image) throws Exception{
 
         // BufferedWriter out = new BufferedWriter(new FileWriter("test.test"));
         // out.write("Lorem50"+image);
         // out.close();
-        EnchereImage ei = new EnchereImage();
-        ei.setIdEnchere(idEnchere);
-        ei.addImage(image);
-        ei.insert();
-    }
-
-    // @PostMapping("/enchereImage")
-    // public void addImage(@RequestHeader int idEnchere,@RequestBody String photo) throws Exception{
-    //     Gson g = new Gson();
-    //     Photo p = g.fromJson(photo, Photo.class);
-    //     String img = p.getImage();
     //     EnchereImage ei = new EnchereImage();
     //     ei.setIdEnchere(idEnchere);
-    //     ei.setImage(img);
+    //     ei.addImage(image);
     //     ei.insert();
-    //     System.out.println("Tafiditra");
     // }
+
+    @PostMapping("/enchereImage")
+    public void addImage(@RequestHeader int idEnchere,@RequestBody String photo) throws Exception{
+        Gson g = new Gson();
+        Photo p = g.fromJson(photo, Photo.class);
+        String img = p.getImage();
+        EnchereImage ei = new EnchereImage();
+        ei.setIdEnchere(idEnchere);
+        ei.setImage(img);
+        ei.insert();
+        System.out.println("Tafiditra");
+    }
     
     @GetMapping("/{idEnchere}")
     public String getImages(@PathVariable int idEnchere) throws Exception {

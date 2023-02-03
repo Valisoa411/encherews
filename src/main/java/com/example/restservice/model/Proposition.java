@@ -7,6 +7,11 @@ package com.example.restservice.model;
 
 import com.example.restservice.generic.Attr;
 import com.example.restservice.generic.ClassAnotation;
+import com.example.restservice.generic.Connexion;
+import com.example.restservice.generic.GenericDAO;
+
+import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Date;
 
 /**
@@ -79,6 +84,22 @@ public class Proposition {
 
     public void setDate(Date date) {
         this.date = date;
+    }
+
+    public ArrayList<Proposition> listeProposition() throws Exception{
+        Connection connect = new Connexion().getConnexion();
+        String requete = "SELECT * FROM Proposition WHERE idEnchere = " + this.idEnchere + " order by montant desc";
+        ArrayList<Proposition> liste = new ArrayList<Proposition>();
+        try{
+            liste = (ArrayList<Proposition>)GenericDAO.findBySql(this,requete,connect);
+        }
+        catch(Exception e){
+            throw e;
+        }
+        finally{
+            connect.close();
+        }
+        return liste;
     }
     
 }

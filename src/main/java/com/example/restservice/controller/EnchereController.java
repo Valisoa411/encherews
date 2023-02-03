@@ -13,7 +13,9 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.*;
 import com.example.restservice.model.Client;
 import com.example.restservice.model.Enchere;
+import com.example.restservice.model.EnchereImage;
 import com.example.restservice.model.Parametre;
+import com.example.restservice.model.Proposition;
 import com.example.restservice.model.V_enchere;
 import com.example.restservice.token.Token;
 import com.google.gson.Gson;
@@ -59,7 +61,7 @@ public class EnchereController {
     }
 
     @PostMapping("/enchere")
-    public String addEnchere(@RequestParam String token,@RequestParam String nomProduit,@RequestParam String description,double prixEnchere,double duree,@RequestParam int statut,@RequestParam int idClient,@RequestParam int idCategorie) throws Exception{
+    public String addEnchere(@RequestParam String token,@RequestParam String nomProduit,@RequestParam String description,double prixEnchere,double duree,@RequestParam int idCategorie) throws Exception{
         Token tk = null;
         try {
             tk = Token.check(token);
@@ -68,8 +70,9 @@ public class EnchereController {
         }
         Enchere enc = new Enchere();
         Response res = new Response();
-        Parametre p = new Parametre("DureeEnchere");
-        if(duree <= p.getParametreValue().getValeur()){
+        Parametre max = new Parametre("Duree Maximum");
+        Parametre min = new Parametre("Duree Minimum");
+        if(min.getParametreValue().getValeur()<=duree && duree<=max.getParametreValue().getValeur()){
             Timestamp dt = Timestamp.valueOf(LocalDateTime.now());
             enc.setDateDebut(dt);
             enc.setNomProduit(nomProduit);
@@ -79,11 +82,12 @@ public class EnchereController {
             enc.setStatut(11);
             enc.setIdClient(tk.getIdClient());
             enc.setIdCategorie(idCategorie);
-            enc.insert();
+//            enc.insert();
             res.setData(new Success("Enchere ajouté avec succes"));
+            res.addAttribute("idEnchere", enc.insert());
         }
         else{
-            res.setError(new Error(1,"La duree d'un enchère ne peut depasser de " + p.getParametreValue().getValeur() + " heures"));
+            res.setError(new Error(1,"La duree d'un enchère inferieur a " + min.getParametreValue().getValeur() + " heures ou superieur a " + max.getParametreValue().getValeur() + " heures"));
         }
         return g.toJson(res);
     }
@@ -98,11 +102,31 @@ public class EnchereController {
 
     @GetMapping
     public String allEnchere() throws Exception {
+        
+        System.out.println("key : "+Token.keyToken);
         Response res = new Response();
         try {
             ArrayList<Enchere> list = Enchere.allNonFini();
+            ArrayList<Enchere> vaovao = new ArrayList<Enchere>();
+            Enchere e = new Enchere();
+            EnchereImage ei = new EnchereImage();
+            for(int i=0; i<list.size(); i++){
+                e.setId(list.get(i).getId());
+                e.setNomProduit(list.get(i).getNomProduit());
+                e.setDescription(list.get(i).getDescription());
+                e.setPrixEnchere(list.get(i).getPrixEnchere());
+                e.setDuree(list.get(i).getDuree());
+                e.setStatut(list.get(i).getStatut());
+                e.setDateDebut(list.get(i).getDateDebut());
+                e.setIdClient(list.get(i).getIdClient());
+                e.setIdCategorie(list.get(i).getIdCategorie());
+                
+                ei.setIdEnchere(e.getId());
+                e.setImages(ei.listeEnchereImage());
+                vaovao.add(e);
+            }
             res.setData(new Success("Liste des encheres"));
-            res.addAttribute("listenchere", list);
+            res.addAttribute("listenchere", vaovao);
         } catch (Exception e) {
             e.printStackTrace();
             res.setError(new Error(1, "Error : "+e));
@@ -116,8 +140,45 @@ public class EnchereController {
         try {
             Enchere enc = new Enchere();
             enc = Enchere.getEnchere(id);
+            EnchereImage ei = new EnchereImage();
+            ei.setIdEnchere(enc.getId());
+            Enchere vaovao = new Enchere();
+            vaovao = enc;
+            vaovao.setImages(ei.listeEnchereImage());
             res.setData(new Success("Enchere"));
-            res.addAttribute("enc", enc);
+            res.addAttribute("enc", vaovao);
+        } catch (Exception e) {
+            e.printStackTrace();
+            res.setError(new Error(1, "Error : "+e));
+        }
+        return g.toJson(res);
+    }
+
+    @GetMapping("/{id}/images")
+    public String getEnchereImage(@PathVariable("id") int id) throws Exception {
+        Response res = new Response();
+        try {
+            EnchereImage ei = new EnchereImage();
+            ei.setIdEnchere(id);
+            ArrayList<EnchereImage> liste = ei.listeEnchereImage();
+            res.setData(new Success("Image enchere"));
+            res.addAttribute("image", liste);
+        } catch (Exception e) {
+            e.printStackTrace();
+            res.setError(new Error(1, "Error : "+e));
+        }
+        return g.toJson(res);
+    }
+
+    @GetMapping("/{id}/propositions")
+    public String getProposition(@PathVariable("id") int id) throws Exception {
+        Response res = new Response();
+        try {
+            Proposition ei = new Proposition();
+            ei.setIdEnchere(id);
+            ArrayList<Proposition> liste = ei.listeProposition();
+            res.setData(new Success("Proposition enchere"));
+            res.addAttribute("proposition", liste);
         } catch (Exception e) {
             e.printStackTrace();
             res.setError(new Error(1, "Error : "+e));
