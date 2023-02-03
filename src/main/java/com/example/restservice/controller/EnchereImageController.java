@@ -3,12 +3,15 @@ package com.example.restservice.controller;
 import com.example.restservice.Response.Error;
 import com.example.restservice.Response.Response;
 import com.example.restservice.Response.Success;
+import com.example.restservice.generic.Connexion;
 import com.example.restservice.generic.GenericDAO;
 import java.util.concurrent.atomic.AtomicLong;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+
+import java.sql.Connection;
 import java.util.*;
 import com.example.restservice.model.Client;
 import com.example.restservice.model.Enchere;
@@ -32,23 +35,17 @@ public class EnchereImageController {
         ei.insert();
     }
     
-//    @GetMapping("/{idClient}")
-//    public String listeEnchere(@RequestParam int idClient, @RequestParam String token) throws Exception {
-//        Response res = new Response();
-//        try {
-//            Token.check(token);
-//        } catch (ExpiredJwtException e) {
-//            res.setError(new Error(500, "Session Expired"));
-//            return g.toJson(res);
-//        } catch (Exception e) {
-//            res.setError(new Error(500, "Token Error; "+e.getMessage()));
-//            return g.toJson(res);
-//        }
-//        Enchere enc = new Enchere();
-//        vcl.setIdAvion(id);
-//        vcl = vcl.getAvion();
-//        res.setData(new Success("Avion"));
-//        res.addAttribute("vcl", vcl);
-//        return g.toJson(res);
-//    }
+    @GetMapping("/{idEnchere}")
+    public String getImages(@PathVariable int idEnchere) throws Exception {
+        Response res = new Response();
+        try (Connection con = Connexion.getConnexion()) {
+            ArrayList<EnchereImage> ls = (ArrayList<EnchereImage>) GenericDAO.findBySql(new EnchereImage(), "SELECT * FROM ENCHEREIMAGE WHERE IDENCHERE="+idEnchere, con);
+            res.setData(new Success("images"));
+            res.addAttribute("images", ls);
+        } catch (Exception e) {
+            e.printStackTrace();
+            res.setError(new Error(0,"EnchereImageController getImages error"));
+        }
+        return g.toJson(res);
+    }
 }

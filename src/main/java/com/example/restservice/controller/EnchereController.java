@@ -3,6 +3,7 @@ package com.example.restservice.controller;
 import com.example.restservice.Response.Error;
 import com.example.restservice.Response.Response;
 import com.example.restservice.Response.Success;
+import com.example.restservice.generic.Connexion;
 import com.example.restservice.generic.GenericDAO;
 import java.util.concurrent.atomic.AtomicLong;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -13,10 +14,13 @@ import java.util.*;
 import com.example.restservice.model.Client;
 import com.example.restservice.model.Enchere;
 import com.example.restservice.model.Parametre;
+import com.example.restservice.model.V_enchere;
 import com.example.restservice.token.Token;
 import com.google.gson.Gson;
 
 import io.jsonwebtoken.ExpiredJwtException;
+
+import java.sql.Connection;
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
@@ -25,7 +29,35 @@ import java.time.LocalDateTime;
 @RequestMapping("/encheres")
 public class EnchereController {
     Gson g = new Gson();
-        
+
+    @GetMapping("/v")
+    public String encheres(){
+        Response res = new Response();
+        try (Connection con = Connexion.getConnexion()) {
+            ArrayList<V_enchere> list = (ArrayList<V_enchere>) GenericDAO.all(new V_enchere(), con);
+            res.setData(new Success("Liste des encheres"));
+            res.addAttribute("listenchere", list);
+        } catch (Exception e) {
+            e.printStackTrace();
+            res.setError(new Error(1, "Error : "+e));
+        }
+        return g.toJson(res);
+    }
+
+    @GetMapping("/v/{id}")
+    public String enchere(@PathVariable("id") int id) throws Exception {
+        Response res = new Response();
+        try (Connection con = Connexion.getConnexion()) {
+            V_enchere enc = (V_enchere) GenericDAO.findBySql(new V_enchere(), "SELECT * FROM V_ENCHERE WHERE ID="+id, con).get(0);
+            res.setData(new Success("Enchere"));
+            res.addAttribute("enc", enc);
+        } catch (Exception e) {
+            e.printStackTrace();
+            res.setError(new Error(1, "Error : "+e));
+        }
+        return g.toJson(res);
+    }
+
     @PostMapping("/enchere")
     public String addEnchere(@RequestParam String token,@RequestParam String nomProduit,@RequestParam String description,double prixEnchere,double duree,@RequestParam int statut,@RequestParam int idClient,@RequestParam int idCategorie) throws Exception{
         Token tk = null;

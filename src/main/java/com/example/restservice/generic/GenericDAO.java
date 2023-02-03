@@ -384,8 +384,10 @@ public class GenericDAO {
             res = stm.executeQuery(sql);
             while(res.next()){
                 Object e = clas.newInstance();
-                met = clas.getDeclaredMethod("set"+upperStart(primFld.getName()),primFld.getType());
-                met.invoke(e,res.getObject(primCol));
+                if(primFld != null){
+                    met = clas.getDeclaredMethod("set"+upperStart(primFld.getName()),primFld.getType());
+                    met.invoke(e, res.getObject(primCol));
+                }
                 for(int i=0;i<cols.size();i++){
                     Field f = flds.get(i);
                     String col = cols.get(i);

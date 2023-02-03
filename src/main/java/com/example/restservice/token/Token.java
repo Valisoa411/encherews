@@ -32,9 +32,9 @@ import io.jsonwebtoken.Claims;
  */
 @ClassAnotation(table = "token")
 public class Token {
-    public static final long DateEXP = 300000;
+    public static final long DateEXP = 10000000;
     // public static final String keyToken = "Token22";
-    public static final String keyToken = Token.generateSafeKey();
+    public static final String keyToken = "OxvhmCRUIPuS3QYZtCq1xDK4lnzWGmrK3ol89qENSjLtUhG9";
 
     int id;
     @Attr

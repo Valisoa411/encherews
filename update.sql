@@ -45,11 +45,48 @@ select v_commission_enchere.id,MAX(commission) from v_commission_enchere GROUP B
 CREATE OR REPLACE VIEW v_vendu AS
 SELECT v_commission_enchere.* FROM  v_vendu_temp JOIN v_commission_enchere  ON v_vendu_temp.id=v_commission_enchere.id AND v_vendu_temp.max=v_commission_enchere.commission;
 
-
 CREATE OR REPLACE VIEW v_all_recette_by_categorie AS
 SELECT categorie.*, sum(commission) FROM categorie LEFT JOIN v_vendu
 ON categorie.id=v_vendu.idcategorie
 GROUP BY categorie.id;
+
+
+
+
+
+
+CREATE OR REPLACE VIEW v_bestprop AS
+SELECT 
+    IDENCHERE, 
+    MAX(MONTANT) BEST
+FROM PROPOSITION
+GROUP BY IDENCHERE
+;
+
+CREATE OR REPLACE VIEW v_bestpropenchere AS
+SELECT
+    P.*
+FROM PROPOSITION P 
+    CROSS JOIN V_BESTPROP V
+WHERE P.MONTANT=V.BEST
+;
+
+CREATE OR REPLACE VIEW v_enchere AS
+SELECT
+    E.ID,
+    E.NOMPRODUIT,
+    E.DESCRIPTION,
+    C.LIBELLE CATEGORIE,
+    VB.MONTANT,
+    CL.NOM CLIENT,
+    (SELECT E.DATEDEBUT + INTERVAL '1 HOURS' * E.DUREE) DATEFIN,
+    (SELECT IMAGE FROM ENCHEREIMAGE WHERE IDENCHERE=E.ID LIMIT 1) IMAGE
+FROM ENCHERE E 
+    JOIN CATEGORIE C ON E.IDCATEGORIE=C.ID
+    JOIN V_BESTPROPENCHERE VB ON E.ID=VB.IDENCHERE
+    JOIN CLIENT CL ON VB.IDCLIENT=CL.ID
+;
+
 
 
 --SELECT categorie.*, sum(commission) FROM categorie LEFT JOIN v_commission_enchere 
