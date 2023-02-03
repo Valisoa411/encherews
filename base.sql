@@ -108,7 +108,7 @@ create table commission(
 	commission real default 0,
 	"date" date default now()
 );
-insert into commission values(default,5,'20-1-2023 21:00'),
+insert into commission values(default,5,'2023-1-20 21:00'),
 -- insert into commission values(default,5,'1-20-2023 21:00'),
 (default,10,default);
 
