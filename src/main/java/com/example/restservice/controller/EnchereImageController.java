@@ -11,6 +11,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.io.BufferedWriter;
+import java.io.File;
+import java.io.FileWriter;
 import java.sql.Connection;
 import java.util.*;
 import com.example.restservice.model.Client;
@@ -29,11 +32,27 @@ public class EnchereImageController {
         
     @PostMapping("/enchereImage")
     public void addImage(@RequestParam int idEnchere,@RequestParam String image) throws Exception{
+
+        // BufferedWriter out = new BufferedWriter(new FileWriter("test.test"));
+        // out.write("Lorem50"+image);
+        // out.close();
         EnchereImage ei = new EnchereImage();
         ei.setIdEnchere(idEnchere);
-        ei.setImage(image);
+        ei.addImage(image);
         ei.insert();
     }
+
+    // @PostMapping("/enchereImage")
+    // public void addImage(@RequestHeader int idEnchere,@RequestBody String photo) throws Exception{
+    //     Gson g = new Gson();
+    //     Photo p = g.fromJson(photo, Photo.class);
+    //     String img = p.getImage();
+    //     EnchereImage ei = new EnchereImage();
+    //     ei.setIdEnchere(idEnchere);
+    //     ei.setImage(img);
+    //     ei.insert();
+    //     System.out.println("Tafiditra");
+    // }
     
     @GetMapping("/{idEnchere}")
     public String getImages(@PathVariable int idEnchere) throws Exception {

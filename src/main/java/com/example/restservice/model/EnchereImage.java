@@ -42,13 +42,13 @@ public class EnchereImage {
 //        byte[] fileContent = FileUtils.readFileToByteArray(new File(image));
 //        String encodedString = Base64.getEncoder().encodeToString(fileContent);
 //        encodedString = new String(Base64.encodeBase64(fileContent), "UTF-8");
-        File f = new File(image); //change path of image according to you
-        FileInputStream fis = new FileInputStream(f);
-        byte byteArray[] = new byte[(int)f.length()];
-        fis.read(byteArray);
-        String imageString = Base64.encodeBase64String(byteArray);
+//        File f = new File(image); //change path of image according to you
+//        FileInputStream fis = new FileInputStream(f);
+//        byte byteArray[] = new byte[(int)f.length()];
+//        fis.read(byteArray);
+//        String imageString = Base64.encodeBase64String(byteArray);
         
-        this.image = imageString;
+        this.image = image;
     }
     
     public void insert() throws Exception{
