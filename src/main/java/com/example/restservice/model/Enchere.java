@@ -298,21 +298,21 @@ public class Enchere {
         GenericDAO.save(newLast, con);
     }
 
-    public static ArrayList<Enchere> filtrer(String motcle,Date[] dates,String[] categories,int statut) throws Exception {
-        String sql = "SELECT * FROM ENCHERE WHERE 1=1";
-        if(motcle!=null && !motcle.isEmpty()) sql += " AND DESCRIPTION LIKE '%"+motcle+"%'";
-        if(dates[0]!=null && dates[1]!=null) sql += " AND (DATEDEBUT BETWEEN '"+dates[0]+"' AND '"+dates[1]+"')";
-        if(categories.length!=0) sql += " AND IDCATEGORIE IN ("+String.join(",",categories)+")";
-        if(statut!=-1) sql += " AND STATUT="+statut;
-        ArrayList<Enchere> val = new ArrayList<Enchere>();
-        try (Connection con = new Connexion().getConnexion()) {
-            val = (ArrayList<Enchere>) GenericDAO.findBySql(new Enchere(), sql, con);
-        } catch (Exception e) {
-            e.printStackTrace();
-            throw e;
-        }
-        return val;
-    }
+    // public static ArrayList<Enchere> filtrer(String motcle,Date[] dates,String[] categories,int statut) throws Exception {
+    //     String sql = "SELECT * FROM ENCHERE WHERE 1=1";
+    //     if(motcle!=null && !motcle.isEmpty()) sql += " AND DESCRIPTION LIKE '%"+motcle+"%'";
+    //     if(dates[0]!=null && dates[1]!=null) sql += " AND (DATEDEBUT BETWEEN '"+dates[0]+"' AND '"+dates[1]+"')";
+    //     if(categories.length!=0) sql += " AND IDCATEGORIE IN ("+String.join(",",categories)+")";
+    //     if(statut!=-1) sql += " AND STATUT="+statut;
+    //     ArrayList<Enchere> val = new ArrayList<Enchere>();
+    //     try (Connection con = new Connexion().getConnexion()) {
+    //         val = (ArrayList<Enchere>) GenericDAO.findBySql(new Enchere(), sql, con);
+    //     } catch (Exception e) {
+    //         e.printStackTrace();
+    //         throw e;
+    //     }
+    //     return val;
+    // }
 
     // public void sendNotification(String token, String title, String message) throws FirebaseMessagingException {
     //     Notification notif = Notification.builder()
@@ -347,6 +347,49 @@ public class Enchere {
             connect.close();
         }
         return liste;
+    }
+
+    public static ArrayList<V_enchere> filtrer(String motcle,Date[] dates,String[] categories,int statut) throws Exception {
+        String sql = "SELECT * FROM ENCHERE WHERE 1=1";
+        System.out.println("111 : "+sql);
+        if(motcle!=null && !motcle.isEmpty()) sql += " AND DESCRIPTION LIKE '%"+motcle+"%'";
+        if(dates[0]!=null && dates[1]!=null) sql += " AND (DATEDEBUT BETWEEN '"+dates[0]+"' AND '"+dates[1]+"')";
+        if(categories.length!=0) sql += " AND IDCATEGORIE IN ("+String.join(",",categories)+")";
+        if(statut!=-1) sql += " AND STATUT="+statut;
+        ArrayList<Enchere> val = new ArrayList<Enchere>();
+        try (Connection con = new Connexion().getConnexion()) {
+            val = (ArrayList<Enchere>) GenericDAO.findBySql(new Enchere(), sql, con);
+            
+            String cond = "(";
+            
+            if(val.isEmpty() || val==null)cond = cond+")";
+            else if(val.size()==1) cond = cond+val.get(0).getId()+")";
+            else{
+                int i=0;
+                cond = cond+val.get(0).getId();
+                for (Enchere enchere : val) {
+                    if(i==0){
+                        i++;
+                        continue;
+                    }
+                    String idTemp = String.valueOf(enchere.getId());
+                    cond = cond+","+idTemp;
+                }
+                cond = cond+")";
+            }
+            Connection connection = Connexion.getConnexion(); //con closed
+            String sql2 = "SELECT * FROM V_ENCHERE WHERE id IN "+cond;
+            System.out.println("SQL "+sql2);
+            System.out.println("filtrer() val: "+val.size());
+            
+            return (ArrayList<V_enchere>)GenericDAO.findBySql(new V_enchere(), sql2, connection);
+            
+            //return val;
+         
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw e;
+        }
     }
 
 }

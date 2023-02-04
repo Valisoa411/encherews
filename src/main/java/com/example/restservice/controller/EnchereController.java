@@ -203,7 +203,7 @@ public class EnchereController {
             } catch (Exception e) {
                 // e.printStackTrace();
             }
-            ArrayList<Enchere> list = Enchere.filtrer(motcle, dates, categories, statut);
+            ArrayList<V_enchere> list = Enchere.filtrer(motcle, dates, categories, statut);
             res.setData(new Success("Filtre reussir"));
             res.addAttribute("listenchere", list);
         } catch (Exception e) {
